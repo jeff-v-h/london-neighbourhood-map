@@ -60,6 +60,12 @@ function initMap() {
       this.setIcon(defaultIcon);
     });
   }
+
+  // When the zoom button is clicked, call the zoomToArea function which
+  // zooms into the area specified
+  document.getElementById('zoom-btn').addEventListener('click', function() {
+    zoomToArea();
+  })
 }
 
 // This function takes in a color and then creates a new marker icon of that color.
@@ -89,5 +95,34 @@ function populateInfoWindow(marker, infowindow) {
 
     // Open the infowindow on the correct marker
     infowindow.open(map, marker);
+  }
+}
+
+// This function takes the input value in the zoom-text input and zoomes in to
+// focus on that area of the map
+function zoomToArea() {
+  // Initialise the geocoder
+  var geocoder = new google.maps.Geocoder();
+  // Get the address or place that the user entered.
+  var address = document.getElementById('zoom-text').value;
+  // Make sure the address isn't blank
+  if (address == '') {
+    window.alert('You must enter an area or address.');
+  } else {
+    // Geocode the address/area entered to get the center.
+    // Then center the map on it and zoom in
+    geocoder.geocode(
+      {
+        address: address,
+        componentRestrictions: {locality: 'London'}
+      }, function(results, status) {
+        if (status == google.maps.GeocoderStatus.OK) {
+          map.setCenter(results[0].geometry.location);
+          map.setZoom(15);
+        } else {
+          window.alert('We could not find that location. Try entering a more' +
+            ' specific place.');
+        }
+      });
   }
 }
