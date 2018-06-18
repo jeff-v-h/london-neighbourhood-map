@@ -126,3 +126,29 @@ function zoomToArea() {
       });
   }
 }
+
+// function for a get request to yelp to obtain data
+function getFourSquareData(address) {
+  var fourSquareUrl = 'https://api.foursquare.com/v2/venues/search';
+  client_id = 'QQADBFGQZA3DVCPTFONP3VIHHMLJARSEQY0SGH4RFNSOTWGJ';
+  client_secret = '0O2IQP4LFNADYTUOXN2LTYHCVCUBFH4KHRVYU5HVK2TM0ORH';
+  $.ajax({
+    method: 'GET',
+    url: fourSquareUrl,
+    dataType: 'json',
+    data: {
+      'client_id': client_id,
+      'client_secret': client_secret,
+      'near': address,
+      'v': '20180618'
+    },
+    success: function(data) {
+      console.log(data);
+    },
+    error: function(err) {
+      console.log('error:' + err);
+    }
+  });
+}
+
+getFourSquareData('covent garden');
