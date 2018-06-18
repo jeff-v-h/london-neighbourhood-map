@@ -22,6 +22,9 @@ function initMap() {
     zoom: 13
   });
 
+  // Initialise info window
+  var infoWindow = new google.maps.InfoWindow();
+
   // Style the markers a bit. This will be the listing marker icon
   var defaultIcon = makeMarkerIcon('0091ff');
 
@@ -45,6 +48,10 @@ function initMap() {
     // Push the marker to the array
     markers.push(marker);
 
+    // When clicked, the marker will open an info window
+    marker.addListener('click', function() {
+      populateInfoWindow(this, infoWindow);
+    })
   }
 }
 
@@ -59,4 +66,21 @@ function makeMarkerIcon(markerColor) {
     new google.maps.Point(10, 34),
     new google.maps.Size(21,34));
   return markerImage;
+}
+
+// A function to populate the infowwindow when the marker is clicked.
+// Only one infowindow is allowed at a time at the selected markers position
+function populateInfoWindow(marker, infowindow) {
+  // Check to make sure infowindow is not already opened on this marker.
+  if (infowindow.marker != marker) {
+    infowindow.setContent('');
+    infowindow.marker = marker;
+    // Makre sure the marker property is cleared if the infowindow is closed.
+    infowindow.addListener('closeclick', function() {
+      infowindow.marker = null;
+    });
+
+    // Open the infowindow on the correct marker
+    infowindow.open(map, marker);
+  }
 }
