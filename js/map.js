@@ -51,7 +51,14 @@ function initMap() {
     // When clicked, the marker will open an info window
     marker.addListener('click', function() {
       populateInfoWindow(this, infoWindow);
-    })
+    });
+    // Change colours of the marker when hovering over and out
+    marker.addListener('mouseover', function() {
+      this.setIcon(highlightedIcon);
+    });
+    marker.addListener('mouseout', function() {
+      this.setIcon(defaultIcon);
+    });
   }
 }
 
