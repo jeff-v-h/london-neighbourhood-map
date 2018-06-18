@@ -16,8 +16,8 @@
       </div>
       <hr>
       <div>
-        <ul id="location-list">
-          <li></li>
+        <ul id="location-list" data-bind="foreach: barList">
+          <li data-bind="text: title"></li>
         </ul>
       </div>
     </div>
@@ -26,6 +26,7 @@
   <script type="text/javascript" src="js/jquery.min.js"></script>
   <script type="text/javascript" src="js/lib/knockout.js"></script>
   <script type="text/javascript" src="js/map.js"></script>
+  <script type="text/javascript" src="js/mvvm.js"></script>
   <script async defer
         src=
         "https://maps.googleapis.com/maps/api/js?libraries=places&key=AIzaSyBM8iwYxr5J1qTAYBtWmE2OSAcCsM1Fxpg&v=3&callback=initMap">
