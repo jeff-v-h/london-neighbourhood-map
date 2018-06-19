@@ -1,19 +1,22 @@
 var map;
 
-// Create a new blank array for all the listing markers
-var markers = [];
-
-// A few initial listings of bars to start off with. Later to get data from database 
+// A few initial listings of bars to start off with. Later to get data from FourSquare API and populate this array
 var bars = [
-  {title: 'Oriole Bar', location: {lat: 51.518946, lng: -0.102813}},
-  {title: 'Big Easy Bar', location: {lat: 51.510816, lng: -0.122995}},
-  {title: 'Milroy\'s', location: {lat: 51.514851, lng: -0.131304}},
-  {title: 'The Worlds End', location: {lat: 51.567018, lng: -0.108246}},
-  {title: 'The Faltering Fullback', location: {lat: 51.568619, lng: -0.108182}},
-  {title: 'London Cocktail Club', location: {lat: 51.523940, lng: -0.073050}},
-  {title: 'Bar Kick', location: {lat: 51.526970, lng: -0.078200}},
-  {title: 'Shakespeares Head', location: {lat: 51.513734, lng: -0.139550}}
+  {name: 'Oriole Bar', location: {lat: 51.518946, lng: -0.102813}},
+  {name: 'Big Easy Bar', location: {lat: 51.510816, lng: -0.122995}},
+  {name: 'Milroy\'s', location: {lat: 51.514851, lng: -0.131304}},
+  {name: 'The Worlds End', location: {lat: 51.567018, lng: -0.108246}},
+  {name: 'The Faltering Fullback', location: {lat: 51.568619, lng: -0.108182}},
+  {name: 'London Cocktail Club', location: {lat: 51.523940, lng: -0.073050}},
+  {name: 'Bar Kick', location: {lat: 51.526970, lng: -0.078200}},
+  {name: 'Shakespeares Head', location: {lat: 51.513734, lng: -0.139550}}
 ];
+
+// This will be the listing marker icon
+var defaultIcon;
+
+// Create a "highlighted location" marker color for when the user mouses over or clicks the marker
+var highlightedIcon;
 
 function initMap() {
   // Constructor creates a new map
@@ -25,28 +28,24 @@ function initMap() {
   // Initialise info window
   var infoWindow = new google.maps.InfoWindow();
 
-  // Style the markers a bit. This will be the listing marker icon
-  var defaultIcon = makeMarkerIcon('0091ff');
-
-  // Create a "highlighted location" marker color for when the user mouses over the marker
-  var highlightedIcon = makeMarkerIcon('FFFF24');
+  // Style the markers
+  defaultIcon = makeMarkerIcon('0091ff');
+  highlightedIcon = makeMarkerIcon('FFFF24');
 
   // The following group uses the bars array to create an array of markers on initialize.
   for (var i=0; i<bars.length; i++) {
     // Get the position from the bars array
     var position = bars[i].location;
-    var title = bars[i].title;
+    var name = bars[i].name;
     // Create a marker per location, and put into the markers array.
     var marker = new google.maps.Marker({
       map: map,
       position: position,
-      title: title,
+      title: name,
       animation: google.maps.Animation.DROP,
       icon: defaultIcon,
       id: i
     });
-    // Push the marker to the array
-    markers.push(marker);
 
     // When clicked, the marker will open an info window
     marker.addListener('click', function() {
@@ -62,9 +61,18 @@ function initMap() {
   }
 
   // When the zoom button is clicked, call the zoomToArea function which
-  // zooms into the area specified
+  // zooms into the area specified and call the FourSquaredata function to 
+  // get places data for that location
   document.getElementById('zoom-btn').addEventListener('click', function() {
-    zoomToArea();
+    // Get the address or place that the user entered.
+    var address = document.getElementById('zoom-text').value;
+    // Make sure the address isn't blank
+    if (address == '') {
+      window.alert('You must enter an area or address.');
+    } else {
+      zoomToArea(address);
+      getFourSquareData(address);
+    }
   })
 }
 
@@ -100,34 +108,29 @@ function populateInfoWindow(marker, infowindow) {
 
 // This function takes the input value in the zoom-text input and zoomes in to
 // focus on that area of the map
-function zoomToArea() {
+function zoomToArea(address) {
   // Initialise the geocoder
   var geocoder = new google.maps.Geocoder();
-  // Get the address or place that the user entered.
-  var address = document.getElementById('zoom-text').value;
-  // Make sure the address isn't blank
-  if (address == '') {
-    window.alert('You must enter an area or address.');
-  } else {
-    // Geocode the address/area entered to get the center.
-    // Then center the map on it and zoom in
-    geocoder.geocode(
-      {
-        address: address,
-        componentRestrictions: {locality: 'London'}
-      }, function(results, status) {
-        if (status == google.maps.GeocoderStatus.OK) {
-          map.setCenter(results[0].geometry.location);
-          map.setZoom(15);
-        } else {
-          window.alert('We could not find that location. Try entering a more' +
-            ' specific place.');
-        }
-      });
-  }
+  // Geocode the address/area entered to get the center.
+  // Then center the map on it and zoom in
+  geocoder.geocode(
+    {
+      address: address,
+      componentRestrictions: {locality: 'London'}
+    }, function(results, status) {
+      if (status == google.maps.GeocoderStatus.OK) {
+        map.setCenter(results[0].geometry.location);
+        map.setZoom(15);
+      } else {
+        window.alert('We could not find that location. Try entering a more' +
+          ' specific place.');
+      }
+    }
+  );
 }
 
-// function for a get request to yelp to obtain data
+// function for a get request to FourSquare to search the address specified
+// On success, it will call a function to create markers for each place
 function getFourSquareData(address) {
   var fourSquareUrl = 'https://api.foursquare.com/v2/venues/search';
   client_id = 'QQADBFGQZA3DVCPTFONP3VIHHMLJARSEQY0SGH4RFNSOTWGJ';
@@ -140,15 +143,68 @@ function getFourSquareData(address) {
       'client_id': client_id,
       'client_secret': client_secret,
       'near': address,
-      'v': '20180618'
+      // date/v is required for API call to work for FourSquare
+      'v': '20180618',
+      // categoryId specifies search to bars, breweries and lounges
+      'categoryId': '4bf58dd8d48988d116941735,50327c8591d4c4b30a586d5d,4bf58dd8d48988d121941735',
+      'radius': '500'
     },
     success: function(data) {
       console.log(data);
+      var venueList = data.response.venues;
+      // Check to see if there are any venues returned
+      if (venueList.length == 0) {
+        window.alert('No bars were found in this area.');
+      } else {
+        // Create markers for each of the venues
+        createMarkersForPlaces(venueList);
+      }
     },
     error: function(err) {
       console.log('error:' + err);
+      window.alert('The following error occurred when finding bars in your location:' + err);
     }
   });
 }
 
-getFourSquareData('covent garden');
+// This function creates markers for each place found via the zoom search box
+// and hence via FourSquare API GET request
+function createMarkersForPlaces(venues) {
+  // Loop through all venues and make a marker for each one
+  for (var i = 0; i < venues.length; i++) {
+    var venue = venues[i];
+    // push each venue into the bars array
+    bars.push(venue);
+    // set up latlng in a format compatible with google Marker
+    var latlng = {lat: venue.location.lat, lng: venue.location.lng}
+    // Create a marker for each place
+    var marker = new google.maps.Marker({
+      map: map,
+      icon: defaultIcon,
+      title: venue.name,
+      position: latlng,
+      id: venue.id,
+      animation: google.maps.Animation.DROP
+    });
+
+    // Create a single infowindow to show data about the place selected.
+    // Only one will be open at a time
+    var venueInfoWindow = new google.maps.InfoWindow();
+    // If a marker is clicked, use the venue id to request specific data from
+    // FourSquare API
+    marker.addListener('click', function() {
+      if (venueInfoWindow.marker == this) {
+        console.log("This infowindow is already on this marker!");
+      } else {
+        getVenueDetails(this, venueInfoWindow);
+      }
+    });  
+
+  }
+}
+
+// This function is called when a marker is clicked and more info is wanted 
+// about a specific place. A GET request is sent to FourSquare the specific id
+function getVenueDetails(marker, infowindow) {
+
+}

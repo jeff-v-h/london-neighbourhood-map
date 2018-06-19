@@ -3,7 +3,7 @@
 // A function to create an object with observables for each bar item 
 var Bar = function(data) {
   var self = this;
-  self.title = ko.observable(data.title);
+  self.name = ko.observable(data.name);
   self.location = ko.observable(data.location);
 }
 
