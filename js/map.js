@@ -150,7 +150,6 @@ function getFourSquareData(address) {
       'radius': '500'
     },
     success: function(data) {
-      console.log(data);
       var venueList = data.response.venues;
       // Check to see if there are any venues returned
       if (venueList.length == 0) {
@@ -162,7 +161,7 @@ function getFourSquareData(address) {
     },
     error: function(err) {
       console.log('error:' + err);
-      window.alert('The following error occurred when finding bars in your location:' + err);
+      window.alert('An error occurred when finding bars in your specified location. Please check spelling');
     }
   });
 }
@@ -206,5 +205,67 @@ function createMarkersForPlaces(venues) {
 // This function is called when a marker is clicked and more info is wanted 
 // about a specific place. A GET request is sent to FourSquare the specific id
 function getVenueDetails(marker, infowindow) {
-
+  var fourSquareUrl = 'https://api.foursquare.com/v2/venues/';
+  fourSquareUrl += marker.id
+  client_id = 'QQADBFGQZA3DVCPTFONP3VIHHMLJARSEQY0SGH4RFNSOTWGJ';
+  client_secret = '0O2IQP4LFNADYTUOXN2LTYHCVCUBFH4KHRVYU5HVK2TM0ORH';
+  $.ajax({
+    method: 'GET',
+    url: fourSquareUrl,
+    dataType: 'json',
+    data: {
+      'client_id': client_id,
+      'client_secret': client_secret,
+      'v': '20180618'
+    },
+    // If GET request is successful, populate the infowindow with the data
+    success: function(data) {
+      var venue = data.response.venue;
+      // Set the marker property on thisinfowindow so it isn't created again
+      infowindow.marker = marker;
+      // create the HTML that is going to be seen inside the infowindow
+      var innerHTML = '<div>';
+      if (venue.name) {
+        innerHTML += '<strong>' + venue.name + '</strong>';
+      }
+      if (venue.location.formattedAddress) {
+        var addressArray = venue.location.formattedAddress;
+        innerHTML += '<br>';
+        // Create the address string
+        for (i = 0; i < addressArray.length; i++) {
+          // Add a comma and space before the part of address if it isn't the first one
+          if (i != 0) {
+            innerHTML += ', ';
+          }
+          innerHTML += addressArray[i]
+        }
+      }
+      if (venue.url) {
+        innerHTML += '<br>' + venue.url;
+      }
+      if (venue.contact && venue.contact.formattedPhone) {
+        innerHTML += '<br>' + venue.contact.formattedPhone;
+      }
+      if (venue.hours && venue.hours.timeframes) {
+        var openingTimes = venue.hours.timeframes;
+        innerHTML += '<br><br><strong>Hours:</strong>';
+        // loop through timeframes array to get the opening times
+        for (i = 0; i < openingTimes.length; i++) {
+          innerHTML += '<br>' + openingTimes[i].days + ': ' + openingTimes[i].open[0].renderedTime;
+        }
+      }
+      innerHTML += '</div>';
+      // Set the created HTML into the infowindow
+      infowindow.setContent(innerHTML);
+      infowindow.open(map, marker);
+      // Make sure the marker property is cleared if the infowindow is closed
+      infowindow.addListener('closeclick', function() {
+        infowindow.marker = null;
+      });
+    },
+    error: function(err) {
+      console.log('error:' + err);
+      window.alert('An error occurred when trying to find this bar\'s details');
+    }
+  });
 }
