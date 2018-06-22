@@ -1,3 +1,4 @@
+// Initialise the map variable to be able to access the map globally
 var map;
 
 // A few initial listings of bars to start off with. Later to get data from FourSquare API and populate this array
@@ -70,6 +71,8 @@ function initMap() {
     if (address == '') {
       window.alert('You must enter an area or address.');
     } else {
+      // Call functions to zoom to the are on google maps
+      // and to obtain data from FourSquare to make markers and infowindows
       zoomToArea(address);
       getFourSquareData(address);
     }

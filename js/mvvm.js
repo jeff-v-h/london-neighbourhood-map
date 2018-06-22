@@ -16,6 +16,17 @@ var ViewModel = function() {
   bars.forEach(function(barItem) {
     self.barList.push( new Bar(barItem) );
   });
+
+  // When this function is called, the barList is cleaned and replaced with the current 
+  // list of bars in the bars array
+  self.updateList = function() {
+    self.barList([]);
+    console.log(self.barList());
+    bars.forEach(function(barItem) {
+      self.barList.push( new Bar(barItem) );
+    });
+    console.log(self.barList())
+  }
 }
 
 // Apply bindings to get ViewModel to work
