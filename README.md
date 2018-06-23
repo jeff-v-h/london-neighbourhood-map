@@ -23,7 +23,7 @@ These may be required to install the above listed libraries if they are not alre
 
 - london-map.html contains the basic layout of the maps page
 - css/style.css creates the styling for the page
-- js/map.js contains all the JavaScript functioning of the page
+- js/map.js contains the Model, google map initiation function and helper functions
 - js/mvvm.js contains the ViewModel using KnockoutJS
 
 ### Installing jQuery and KnockoutJS
