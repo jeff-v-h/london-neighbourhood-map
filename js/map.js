@@ -16,6 +16,8 @@ var bars = [
   {name: 'Ye Olde Cock Tavern', location: {lat: 51.51392020857164, lng: -0.1106354728374241}, id: "4b589eedf964a520d16128e3"}
 ];
 
+var markers = [];
+
 // Initialise the map and apply the knockout bindings to the ViewModel at same time.
 function initMap() {
   // Default data for center of London
@@ -55,44 +57,6 @@ function makeMarkerIcon(markerColor) {
   return markerImage;
 }
 
-// This function creates markers for each bar inside the viewmodel barlist array
-var createMarkers = function(venues) {
-  // Loop through all venues and make a marker for each one
-  for (var i = 0; i < venues.length; i++) {
-    var venue = venues[i];
-
-    // set up latlng in a format compatible with google Marker
-    var latlng = {lat: venue.location.lat, lng: venue.location.lng}
-    // Create a marker for each place
-    var marker = new google.maps.Marker({
-      map: map,
-      icon: defaultIcon,
-      title: venue.name,
-      position: latlng,
-      id: venue.id,
-      animation: google.maps.Animation.DROP
-    });
-
-    // If a marker is clicked, use the venue id to request specific data from
-    // FourSquare API
-    marker.addListener('click', function() {
-      if (infoWindow.marker == this) {
-        console.log("This infowindow is already on this marker!");
-      } else {
-        getVenueDetails(this);
-      }
-    });
-
-    // Change colours of the marker when hovering over and out
-    marker.addListener('mouseover', function() {
-      this.setIcon(highlightedIcon);
-    });
-    marker.addListener('mouseout', function() {
-      this.setIcon(defaultIcon);
-    });  
-  }
-};
-
 // This function takes the input value in the zoom-text input and zoomes in to
 // focus on that area of the map
 function zoomToArea(address) {
@@ -115,8 +79,6 @@ function zoomToArea(address) {
     }
   );
 }
-
-
 
 // This function is called when a marker is clicked and more info is wanted 
 // about a specific place. A GET request is sent to FourSquare the specific id

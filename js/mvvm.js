@@ -5,7 +5,48 @@ var Bar = function(data) {
   var self = this;
   self.name = data.name;
   self.location = data.location;
-  self.id = data.id;  
+  self.id = data.id;
+
+  // Set up latlng in a format compatible with google Marker
+  var latlng = {lat: self.location.lat, lng: self.location.lng}
+  // Create a marker for each place
+  self.marker = new google.maps.Marker({
+    map: map,
+    icon: defaultIcon,
+    title: self.name,
+    position: latlng,
+    id: self.id,
+    animation: google.maps.Animation.DROP
+  });
+
+  // If a marker is clicked, use the venue id to request specific data from
+  // FourSquare API
+  self.marker.addListener('click', function() {
+    if (infoWindow.marker == this) {
+      console.log("This infowindow is already on this marker!");
+    } else {
+      getVenueDetails(this);
+    }
+  });
+
+  // Change colours of the marker when hovering over and out
+  self.marker.addListener('mouseover', function() {
+    this.setIcon(highlightedIcon);
+  });
+  self.marker.addListener('mouseout', function() {
+    this.setIcon(defaultIcon);
+  }); 
+
+  markers.push(self.marker);
+
+  // Highlight the associated marker when a bar is clicked in the list.
+  self.identifyMarker = function() {
+    self.marker.setIcon(highlightedIcon);
+    self.marker.setAnimation(google.maps.Animation.BOUNCE);
+    setTimeout(function() {
+      self.marker.setAnimation(null);
+    }, 1200);
+  };
 }
 
 // The View Model to deal with everything that happens on the page
@@ -17,9 +58,6 @@ var ViewModel = function() {
   bars.forEach(function(bar) {
     self.barList.push( new Bar(bar) );
   });
-
-  // Create markers for each of the default bars
-  createMarkers(bars);
 
   self.searchLocation = function() {
     // Get the address or place that the user entered.
@@ -61,14 +99,13 @@ var ViewModel = function() {
         if (venueList.length == 0) {
           window.alert('No bars were found in this area.');
         } else {
-          // Clear barList first
+          // Clear 'barList' and 'markers' before pushing into these arrays
           self.barList([]);
+          markers = [];
           // Push each bar into the barList array. This should automatically update html <ul>
           venueList.forEach(function(bar) {
             self.barList.push( new Bar(bar) );
           });
-          // Create markers for each of the venues
-          createMarkers(venueList);
         }
       },
       error: function(err) {

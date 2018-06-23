@@ -18,7 +18,7 @@
       <hr>
       <div>
         <ul id="location-list" data-bind="foreach: barList">
-          <li data-bind="text: name"></li>
+          <a href="#"><li data-bind="text: name, click: identifyMarker"></li></a>
         </ul>
       </div>
     </div>
