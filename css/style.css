@@ -5,6 +5,17 @@ body {
   padding: 0;
 }
 
+a:link,
+a:visited,
+a:hover,
+a:active {
+  text-decoration: none;
+}
+
+a:hover {
+  cursor: pointer;
+}
+
 .container {
   height: 100%;
   position: relative;
@@ -16,6 +27,21 @@ body {
   height: 100%;
   padding: 10px, 10px, 30px, 10px;
   width: 340px;
+  text-align: center;
+}
+
+#search-title {
+  margin-bottom: 5px;
+}
+
+#list-div {
+  text-align: left;
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+ul {
+  list-style: none;
 }
 
 #map {

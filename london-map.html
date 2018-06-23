@@ -11,12 +11,12 @@
     <div class="options-box">
       <h1>Find Bars</h1>
       <div>
-        <h2>Search Area</h2>
-        <input type="text" id="zoom-text" placeholder="Enter an area in London">
+        <h2 id="search-title">Search Area</h2>
+        <input type="text" id="zoom-text" placeholder="Enter a location to search for bars">
         <input type="button" id="zoom-btn" value="Zoom" data-bind="click: searchLocation">
       </div>
       <hr>
-      <div>
+      <div id="list-div">
         <ul id="location-list" data-bind="foreach: barList">
           <a href="#"><li data-bind="text: name, click: identifyMarker, event: { mouseover: highlightIcon, mouseout: removeHighlight}"></li></a>
         </ul>
