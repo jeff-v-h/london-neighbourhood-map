@@ -1,7 +1,7 @@
-// Initialise the map variable to be able to access the map globally
-var map;
+// Initialise global variables
+var map, infoWindow, defaultIcon, highlightedIcon;
 
-// A few initial listings of bars to start off with. Later to get data from FourSquare API and populate this array
+// A few initial listings of bars to start off with.
 var bars = [
   {name: 'Oriole Bar', location: {lat: 51.518946, lng: -0.102813}},
   {name: 'Big Easy Bar', location: {lat: 51.510816, lng: -0.122995}},
@@ -13,70 +13,25 @@ var bars = [
   {name: 'Shakespeares Head', location: {lat: 51.513734, lng: -0.139550}}
 ];
 
-// This will be the listing marker icon
-var defaultIcon;
-
-// Create a "highlighted location" marker color for when the user mouses over or clicks the marker
-var highlightedIcon;
-
+// Initialise the map and apply the knockout bindings to the ViewModel at same time.
 function initMap() {
+  // Default data for center of London
+  var londonLocation = {lat: 51.5088, lng: -0.1268};
+
   // Constructor creates a new map
   map = new google.maps.Map(document.getElementById('map'), {
-    center: {lat: 51.5088, lng: -0.1268},
+    center: londonLocation,
     zoom: 13
   });
 
   // Initialise info window
-  var infoWindow = new google.maps.InfoWindow();
-
-  // Style the markers
+  infoWindow = new google.maps.InfoWindow();
+  // Style the markers. A highlighted marker for when the mouse is hovering over one.
   defaultIcon = makeMarkerIcon('0091ff');
   highlightedIcon = makeMarkerIcon('FFFF24');
 
-  // The following group uses the bars array to create an array of markers on initialize.
-  for (var i=0; i<bars.length; i++) {
-    // Get the position from the bars array
-    var position = bars[i].location;
-    var name = bars[i].name;
-    // Create a marker per location, and put into the markers array.
-    var marker = new google.maps.Marker({
-      map: map,
-      position: position,
-      title: name,
-      animation: google.maps.Animation.DROP,
-      icon: defaultIcon,
-      id: i
-    });
-
-    // When clicked, the marker will open an info window
-    marker.addListener('click', function() {
-      populateInfoWindow(this, infoWindow);
-    });
-    // Change colours of the marker when hovering over and out
-    marker.addListener('mouseover', function() {
-      this.setIcon(highlightedIcon);
-    });
-    marker.addListener('mouseout', function() {
-      this.setIcon(defaultIcon);
-    });
-  }
-
-  // When the zoom button is clicked, call the zoomToArea function which
-  // zooms into the area specified and call the FourSquaredata function to 
-  // get places data for that location
-  document.getElementById('zoom-btn').addEventListener('click', function() {
-    // Get the address or place that the user entered.
-    var address = document.getElementById('zoom-text').value;
-    // Make sure the address isn't blank
-    if (address == '') {
-      window.alert('You must enter an area or address.');
-    } else {
-      // Call functions to zoom to the are on google maps
-      // and to obtain data from FourSquare to make markers and infowindows
-      zoomToArea(address);
-      getFourSquareData(address);
-    }
-  })
+  // Apply bindings to get ViewModel to work
+  ko.applyBindings(new ViewModel());
 }
 
 // This function takes in a color and then creates a new marker icon of that color.

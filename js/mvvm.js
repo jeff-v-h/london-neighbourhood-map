@@ -5,11 +5,57 @@ var Bar = function(data) {
   var self = this;
   self.name = ko.observable(data.name);
   self.location = ko.observable(data.location);
+  self.id = ko.observable(data.id);
 }
 
 // The View Model to deal with everything that happens on the page
 var ViewModel = function() {
   var self = this;
+
+  // The following group uses the bars array to create an array of markers on initialize.
+  for (var i=0; i<bars.length; i++) {
+    // Get the position from the bars array
+    var position = bars[i].location;
+    var name = bars[i].name;
+    // Create a marker per location, and put into the markers array.
+    var marker = new google.maps.Marker({
+      map: map,
+      position: position,
+      title: name,
+      animation: google.maps.Animation.DROP,
+      icon: self.defaultIcon,
+      id: i
+    });
+
+    // When clicked, the marker will open an info window
+    marker.addListener('click', function() {
+      populateInfoWindow(this, infoWindow);
+    });
+    // Change colours of the marker when hovering over and out
+    marker.addListener('mouseover', function() {
+      this.setIcon(self.highlightedIcon);
+    });
+    marker.addListener('mouseout', function() {
+      this.setIcon(self.defaultIcon);
+    });
+  }
+
+  // When the zoom button is clicked, call the zoomToArea function which
+  // zooms into the area specified and call the FourSquaredata function to 
+  // get places data for that location
+  document.getElementById('zoom-btn').addEventListener('click', function() {
+    // Get the address or place that the user entered.
+    var address = document.getElementById('zoom-text').value;
+    // Make sure the address isn't blank
+    if (address == '') {
+      window.alert('You must enter an area or address.');
+    } else {
+      // Call functions to zoom to the are on google maps
+      // and to obtain data from FourSquare to make markers and infowindows
+      zoomToArea(address);
+      getFourSquareData(address);
+    }
+  })
 
   // Initialise an observable array with all the selected bars
   self.barList = ko.observableArray([]);
@@ -28,6 +74,3 @@ var ViewModel = function() {
     console.log(self.barList())
   }
 }
-
-// Apply bindings to get ViewModel to work
-ko.applyBindings(new ViewModel());
