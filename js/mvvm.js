@@ -29,7 +29,16 @@ var Bar = function(data) {
     }
   });
 
-  // Change colours of the marker when hovering over and out
+  // Change colours of the marker when hovering over list item
+  self.highlightIcon = function() {
+    self.marker.setIcon(highlightedIcon);
+  }
+
+  self.removeHighlight = function() {
+    self.marker.setIcon(defaultIcon);
+  }
+
+  // change colours of the marker when hovering over the marker
   self.marker.addListener('mouseover', function() {
     this.setIcon(highlightedIcon);
   });
@@ -37,6 +46,7 @@ var Bar = function(data) {
     this.setIcon(defaultIcon);
   }); 
 
+  // push marker into the markers array
   markers.push(self.marker);
 
   // Highlight the associated marker when a bar is clicked in the list.
