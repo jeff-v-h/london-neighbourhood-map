@@ -1,5 +1,5 @@
 // Create global variables
-var map, infoWindow, defaultIcon, highlightedIcon, viewModel;
+var map, infoWindow, defaultIcon, highlightedIcon, client_id, client_secret, viewModel;
 
 // A few initial listings of bars to start off with.
 var bars = [
@@ -33,6 +33,9 @@ function initMap() {
   defaultIcon = makeMarkerIcon('0091ff');
   highlightedIcon = makeMarkerIcon('FFFF24');
 
+  client_id = 'QQADBFGQZA3DVCPTFONP3VIHHMLJARSEQY0SGH4RFNSOTWGJ';
+  client_secret = '0O2IQP4LFNADYTUOXN2LTYHCVCUBFH4KHRVYU5HVK2TM0ORH';
+
   // Store a new ViewModel into a global variable
   // Apply bindings within initMap to get ViewModel to work with google maps
   viewModel = new ViewModel();
@@ -54,12 +57,10 @@ function makeMarkerIcon(markerColor) {
 
 // This function creates markers for each bar inside the viewmodel barlist array
 var createMarkers = function(venues) {
-  bars = [];
   // Loop through all venues and make a marker for each one
   for (var i = 0; i < venues.length; i++) {
     var venue = venues[i];
-    // push each venue into the bars array
-    bars.push(venue);
+
     // set up latlng in a format compatible with google Marker
     var latlng = {lat: venue.location.lat, lng: venue.location.lng}
     // Create a marker for each place
@@ -106,7 +107,7 @@ function zoomToArea(address) {
     }, function(results, status) {
       if (status == google.maps.GeocoderStatus.OK) {
         map.setCenter(results[0].geometry.location);
-        map.setZoom(15);
+        map.setZoom(16);
       } else {
         window.alert('We could not find that location. Try entering a more' +
           ' specific place.');
@@ -115,51 +116,13 @@ function zoomToArea(address) {
   );
 }
 
-// function for a get request to FourSquare to search the address specified
-// On success, it will call a function to create markers for each place
-function getFourSquareData(address) {
-  var fourSquareUrl = 'https://api.foursquare.com/v2/venues/search';
-  client_id = 'QQADBFGQZA3DVCPTFONP3VIHHMLJARSEQY0SGH4RFNSOTWGJ';
-  client_secret = '0O2IQP4LFNADYTUOXN2LTYHCVCUBFH4KHRVYU5HVK2TM0ORH';
-  $.ajax({
-    method: 'GET',
-    url: fourSquareUrl,
-    dataType: 'json',
-    data: {
-      'client_id': client_id,
-      'client_secret': client_secret,
-      'near': address,
-      // date/v is required for API call to work for FourSquare
-      'v': '20180618',
-      // categoryId specifies search to bars, breweries and lounges
-      'categoryId': '4bf58dd8d48988d116941735,50327c8591d4c4b30a586d5d,4bf58dd8d48988d121941735',
-      'radius': '500'
-    },
-    success: function(data) {
-      var venueList = data.response.venues;
-      console.log(venueList);
-      // Check to see if there are any venues returned
-      if (venueList.length == 0) {
-        window.alert('No bars were found in this area.');
-      } else {
-        // Create markers for each of the venues
-        createMarkers(venueList);
-      }
-    }.bind(viewModel),
-    error: function(err) {
-      console.log('error:' + err);
-      window.alert('An error occurred when finding bars in your specified location. Please check spelling');
-    }
-  });
-}
+
 
 // This function is called when a marker is clicked and more info is wanted 
 // about a specific place. A GET request is sent to FourSquare the specific id
 function getVenueDetails(marker) {
   var fourSquareUrl = 'https://api.foursquare.com/v2/venues/';
   fourSquareUrl += marker.id
-  client_id = 'QQADBFGQZA3DVCPTFONP3VIHHMLJARSEQY0SGH4RFNSOTWGJ';
-  client_secret = '0O2IQP4LFNADYTUOXN2LTYHCVCUBFH4KHRVYU5HVK2TM0ORH';
   $.ajax({
     method: 'GET',
     url: fourSquareUrl,
@@ -226,3 +189,5 @@ function populateInfoWindow(marker, data) {
     infoWindow.marker = null;
   });
 }
+
+
