@@ -1,16 +1,19 @@
-// Initialise global variables
+// Create global variables
 var map, infoWindow, defaultIcon, highlightedIcon, viewModel;
 
 // A few initial listings of bars to start off with.
 var bars = [
-  {name: 'Oriole Bar', location: {lat: 51.518946, lng: -0.102813}},
-  {name: 'Big Easy Bar', location: {lat: 51.510816, lng: -0.122995}},
-  {name: 'Milroy\'s', location: {lat: 51.514851, lng: -0.131304}},
-  {name: 'The Worlds End', location: {lat: 51.567018, lng: -0.108246}},
-  {name: 'The Faltering Fullback', location: {lat: 51.568619, lng: -0.108182}},
-  {name: 'London Cocktail Club', location: {lat: 51.523940, lng: -0.073050}},
-  {name: 'Bar Kick', location: {lat: 51.526970, lng: -0.078200}},
-  {name: 'Shakespeares Head', location: {lat: 51.513734, lng: -0.139550}}
+  {name: 'The White Swan', location: {lat: 51.51120740451686, lng: -0.12557361355990415}, id: "4fac0383e4b05cb200c3fda4"},
+  {name: 'Shakespeare\'s Head (Wetherspoon)', location: {lat: 51.51675611115309, lng: -0.11968916165935206}, id: "4afd6abff964a520b62722e3"},
+  {name: 'Soho House', location: {lat: 51.51332698424156, lng: -0.1306376983139466}, id: "5a68ca5766611622b6bd8451"},
+  {name: 'The Old Queens Head', location: {lat: 51.5372319, lng: -0.1004195}, id: "4ac518c6f964a52034a520e3"},
+  {name: 'The Islington', location: {lat: 51.53438930761333, lng: -0.10885446885104862}, id: "4ebc8058f9f48676cf72dc0c"},
+  {name: 'The Princess of Shoreditch', location: {lat: 51.5253930243815, lng: -0.08389457472327243}, id: "4ad0adf5f964a5200bd920e3"},
+  {name: 'The Eagle', location: {lat: 51.5285177340379, lng: -0.09194364215271887}, id: "4ad85d94f964a520161121e3"},
+  {name: 'Happiness Forgets', location: {lat: 51.527746, lng: -0.081591}, id: "4d000afb21ea6ea817ce3f9f"},
+  {name: 'The Pineapple', location: {lat: 51.49729153182991, lng: -0.11399775705742675}, id: "4b54de50f964a52090d027e3"},
+  {name: 'The Square Pig', location: {lat: 51.51870707756146, lng: -0.1194159416426558}, id: "4ad36b7ef964a5204be420e3"},
+  {name: 'Ye Olde Cock Tavern', location: {lat: 51.51392020857164, lng: -0.1106354728374241}, id: "4b589eedf964a520d16128e3"}
 ];
 
 // Initialise the map and apply the knockout bindings to the ViewModel at same time.
@@ -30,8 +33,9 @@ function initMap() {
   defaultIcon = makeMarkerIcon('0091ff');
   highlightedIcon = makeMarkerIcon('FFFF24');
 
+  // Store a new ViewModel into a global variable
+  // Apply bindings within initMap to get ViewModel to work with google maps
   viewModel = new ViewModel();
-  // Apply bindings to get ViewModel to work
   ko.applyBindings(viewModel);
 }
 
@@ -48,6 +52,7 @@ function makeMarkerIcon(markerColor) {
   return markerImage;
 }
 
+// This function creates markers for each bar inside the viewmodel barlist array
 var createMarkers = function(venues) {
   // Loop through all venues and make a marker for each one
   for (var i = 0; i < venues.length; i++) {
@@ -155,6 +160,7 @@ function getFourSquareData(address) {
     },
     success: function(data) {
       var venueList = data.response.venues;
+      console.log(venueList);
       // Check to see if there are any venues returned
       if (venueList.length == 0) {
         window.alert('No bars were found in this area.');

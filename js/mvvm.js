@@ -49,7 +49,7 @@ var ViewModel = function() {
       zoomToArea(address);
       getFourSquareData(address);
     }
-  })
+  });
 
   // When this function is called, the barList is cleaned and replaced with the current 
   // list of bars in the bars array
