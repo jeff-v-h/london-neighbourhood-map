@@ -18,21 +18,8 @@ var ViewModel = function() {
     self.barList.push( new Bar(barItem) );
   });
 
-  // The following group uses the bars array to create an array of markers on initialize.
-  for (var i=0; i<bars.length; i++) {
-    // Get the position from the bars array
-    var position = bars[i].location;
-    var name = bars[i].name;
-    // Create a marker per location, and put into the markers array.
-    var marker = new google.maps.Marker({
-      map: map,
-      position: position,
-      title: name,
-      animation: google.maps.Animation.DROP,
-      icon: defaultIcon,
-      id: i
-    });
-  }
+
+  createMarkers(bars);
 
   // When the zoom button is clicked, call the zoomToArea function which
   // zooms into the area specified and call the FourSquaredata function to 
@@ -51,11 +38,15 @@ var ViewModel = function() {
     }
   });
 
+  // Function to remove all bars from bars Aray
+  self.cleanList = function() {
+    self.barList([]);
+    console.log(self.barList());
+  }
+
   // When this function is called, the barList is cleaned and replaced with the current 
   // list of bars in the bars array
   self.updateList = function() {
-    self.barList([]);
-    console.log(self.barList());
     bars.forEach(function(barItem) {
       self.barList.push( new Bar(barItem) );
     });

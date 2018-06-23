@@ -58,7 +58,7 @@ var createMarkers = function(venues) {
   for (var i = 0; i < venues.length; i++) {
     var venue = venues[i];
     // push each venue into the bars array
-    viewModel.barList.push(venue);
+    // viewModel.barList.push(venue);
     // set up latlng in a format compatible with google Marker
     var latlng = {lat: venue.location.lat, lng: venue.location.lng}
     // Create a marker for each place
@@ -71,23 +71,16 @@ var createMarkers = function(venues) {
       animation: google.maps.Animation.DROP
     });
 
-    // Create a single infowindow to show data about the place selected.
-    // Only one will be open at a time
-    var venueInfoWindow = new google.maps.InfoWindow();
     // If a marker is clicked, use the venue id to request specific data from
     // FourSquare API
     marker.addListener('click', function() {
-      if (venueInfoWindow.marker == this) {
+      if (infoWindow.marker == this) {
         console.log("This infowindow is already on this marker!");
       } else {
-        getVenueDetails(this, venueInfoWindow);
+        getVenueDetails(this);
       }
     });
 
-    // When clicked, the marker will open an info window
-    marker.addListener('click', function() {
-      populateInfoWindow(this, infoWindow);
-    });
     // Change colours of the marker when hovering over and out
     marker.addListener('mouseover', function() {
       this.setIcon(highlightedIcon);
@@ -97,23 +90,6 @@ var createMarkers = function(venues) {
     });  
   }
 };
-
-// A function to populate the infowwindow when the marker is clicked.
-// Only one infowindow is allowed at a time at the selected markers position
-function populateInfoWindow(marker, infowindow) {
-  // Check to make sure infowindow is not already opened on this marker.
-  if (infowindow.marker != marker) {
-    infowindow.setContent('');
-    infowindow.marker = marker;
-    // Makre sure the marker property is cleared if the infowindow is closed.
-    infowindow.addListener('closeclick', function() {
-      infowindow.marker = null;
-    });
-
-    // Open the infowindow on the correct marker
-    infowindow.open(map, marker);
-  }
-}
 
 // This function takes the input value in the zoom-text input and zoomes in to
 // focus on that area of the map
@@ -178,7 +154,7 @@ function getFourSquareData(address) {
 
 // This function is called when a marker is clicked and more info is wanted 
 // about a specific place. A GET request is sent to FourSquare the specific id
-function getVenueDetails(marker, infowindow) {
+function getVenueDetails(marker) {
   var fourSquareUrl = 'https://api.foursquare.com/v2/venues/';
   fourSquareUrl += marker.id
   client_id = 'QQADBFGQZA3DVCPTFONP3VIHHMLJARSEQY0SGH4RFNSOTWGJ';
@@ -194,52 +170,58 @@ function getVenueDetails(marker, infowindow) {
     },
     // If GET request is successful, populate the infowindow with the data
     success: function(data) {
-      var venue = data.response.venue;
-      // Set the marker property on thisinfowindow so it isn't created again
-      infowindow.marker = marker;
-      // create the HTML that is going to be seen inside the infowindow
-      var innerHTML = '<div>';
-      if (venue.name) {
-        innerHTML += '<strong>' + venue.name + '</strong>';
-      }
-      if (venue.location.formattedAddress) {
-        var addressArray = venue.location.formattedAddress;
-        innerHTML += '<br>';
-        // Create the address string
-        for (i = 0; i < addressArray.length; i++) {
-          // Add a comma and space before the part of address if it isn't the first one
-          if (i != 0) {
-            innerHTML += ', ';
-          }
-          innerHTML += addressArray[i]
-        }
-      }
-      if (venue.url) {
-        innerHTML += '<br>' + venue.url;
-      }
-      if (venue.contact && venue.contact.formattedPhone) {
-        innerHTML += '<br>' + venue.contact.formattedPhone;
-      }
-      if (venue.hours && venue.hours.timeframes) {
-        var openingTimes = venue.hours.timeframes;
-        innerHTML += '<br><br><strong>Hours:</strong>';
-        // loop through timeframes array to get the opening times
-        for (i = 0; i < openingTimes.length; i++) {
-          innerHTML += '<br>' + openingTimes[i].days + ': ' + openingTimes[i].open[0].renderedTime;
-        }
-      }
-      innerHTML += '</div>';
-      // Set the created HTML into the infowindow
-      infowindow.setContent(innerHTML);
-      infowindow.open(map, marker);
-      // Make sure the marker property is cleared if the infowindow is closed
-      infowindow.addListener('closeclick', function() {
-        infowindow.marker = null;
-      });
+      populateInfoWindow(marker, data);
     },
     error: function(err) {
       console.log('error:' + err);
       window.alert('An error occurred when trying to find this bar\'s details');
     }
+  });
+}
+
+// A function to populate the infowwindow when the marker is clicked.
+// Only one infowindow is allowed at a time at the selected markers position
+function populateInfoWindow(marker, data) {
+  var venue = data.response.venue;
+  // Set the marker property on thisinfowindow so it isn't created again
+  infoWindow.marker = marker;
+  // create the HTML that is going to be seen inside the infowindow
+  var innerHTML = '<div>';
+  if (venue.name) {
+    innerHTML += '<strong>' + venue.name + '</strong>';
+  }
+  if (venue.location.formattedAddress) {
+    var addressArray = venue.location.formattedAddress;
+    innerHTML += '<br>';
+    // Create the address string
+    for (i = 0; i < addressArray.length; i++) {
+      // Add a comma and space before the part of address if it isn't the first one
+      if (i != 0) {
+        innerHTML += ', ';
+      }
+      innerHTML += addressArray[i]
+    }
+  }
+  if (venue.url) {
+    innerHTML += '<br>' + venue.url;
+  }
+  if (venue.contact && venue.contact.formattedPhone) {
+    innerHTML += '<br>' + venue.contact.formattedPhone;
+  }
+  if (venue.hours && venue.hours.timeframes) {
+    var openingTimes = venue.hours.timeframes;
+    innerHTML += '<br><br><strong>Hours:</strong>';
+    // loop through timeframes array to get the opening times
+    for (i = 0; i < openingTimes.length; i++) {
+      innerHTML += '<br>' + openingTimes[i].days + ': ' + openingTimes[i].open[0].renderedTime;
+    }
+  }
+  innerHTML += '</div>';
+  // Set the created HTML into the infowindow
+  infoWindow.setContent(innerHTML);
+  infoWindow.open(map, marker);
+  // Make sure the marker property is cleared if the infowindow is closed
+  infoWindow.addListener('closeclick', function() {
+    infoWindow.marker = null;
   });
 }
