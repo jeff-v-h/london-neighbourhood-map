@@ -79,7 +79,7 @@ function zoomToArea(address) {
   );
 }
 
-// This function is called when a marker is clicked and more info is wanted 
+// This function is called when a marker is clicked and more info is wanted
 // about a specific place. A GET request is sent to FourSquare the specific id
 function getVenueDetails(marker) {
   var fourSquareUrl = 'https://api.foursquare.com/v2/venues/';
@@ -155,5 +155,3 @@ function populateInfoWindow(marker, data) {
     infoWindow.marker = null;
   });
 }
-
-

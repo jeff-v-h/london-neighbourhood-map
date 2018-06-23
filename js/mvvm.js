@@ -1,6 +1,6 @@
 // Separate JavaScript file for the ViewModel. The data is currently in map.js
 
-// A function to create an object with observables for each bar item 
+// A function to create an object with observables for each bar item
 var Bar = function(data) {
   var self = this;
   self.name = data.name;
@@ -32,19 +32,20 @@ var Bar = function(data) {
   // Change colours of the marker when hovering over list item
   self.highlightIcon = function() {
     self.marker.setIcon(highlightedIcon);
-  }
+  };
 
   self.removeHighlight = function() {
     self.marker.setIcon(defaultIcon);
-  }
+  };
 
   // change colours of the marker when hovering over the marker
   self.marker.addListener('mouseover', function() {
     this.setIcon(highlightedIcon);
   });
+
   self.marker.addListener('mouseout', function() {
     this.setIcon(defaultIcon);
-  }); 
+  });
 
   // push marker into the markers array
   markers.push(self.marker);
@@ -57,7 +58,7 @@ var Bar = function(data) {
       self.marker.setAnimation(null);
     }, 1200);
   };
-}
+};
 
 // The View Model to deal with everything that happens on the page
 var ViewModel = function() {
@@ -80,7 +81,6 @@ var ViewModel = function() {
       // and to obtain data from FourSquare to make markers and infowindows
       zoomToArea(address);
       self.getFourSquareData(address);
-      
     }
   };
 
@@ -124,6 +124,5 @@ var ViewModel = function() {
         return false;
       }
     });
-  }
-
-}
+  };
+};
