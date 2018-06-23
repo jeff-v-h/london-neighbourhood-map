@@ -1,5 +1,5 @@
 // Create global variables
-var map, infoWindow, defaultIcon, highlightedIcon, client_id, client_secret, viewModel;
+var map, infoWindow, defaultIcon, highlightedIcon, client_id, client_secret;
 
 // A few initial listings of bars to start off with.
 var bars = [
@@ -40,8 +40,7 @@ function initMap() {
 
   // Store a new ViewModel into a global variable
   // Apply bindings within initMap to get ViewModel to work with google maps
-  viewModel = new ViewModel();
-  ko.applyBindings(viewModel);
+  ko.applyBindings(new ViewModel());
 }
 
 // This function takes in a color and then creates a new marker icon of that color.
@@ -99,8 +98,13 @@ function getVenueDetails(marker) {
       populateInfoWindow(marker, data);
     },
     error: function(err) {
-      console.log('error:' + err);
-      window.alert('An error occurred when trying to find this bar\'s details');
+      console.log('Error response shown below.');
+      console.log(err);
+      if (err.responseJSON.meta.code == 429) {
+        window.alert('Daily quota limit has been exceeded. Please try requesting data again tomorrow!')
+      } else {
+        window.alert('An error occurred when trying to find this bar\'s details. Daily limit may have been reached.');
+      }
     }
   });
 }
