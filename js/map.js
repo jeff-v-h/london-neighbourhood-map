@@ -1,5 +1,5 @@
 // Initialise global variables
-var map, infoWindow, defaultIcon, highlightedIcon;
+var map, infoWindow, defaultIcon, highlightedIcon, viewModel;
 
 // A few initial listings of bars to start off with.
 var bars = [
@@ -30,8 +30,9 @@ function initMap() {
   defaultIcon = makeMarkerIcon('0091ff');
   highlightedIcon = makeMarkerIcon('FFFF24');
 
+  viewModel = new ViewModel();
   // Apply bindings to get ViewModel to work
-  ko.applyBindings(new ViewModel());
+  ko.applyBindings(viewModel);
 }
 
 // This function takes in a color and then creates a new marker icon of that color.
@@ -46,6 +47,51 @@ function makeMarkerIcon(markerColor) {
     new google.maps.Size(21,34));
   return markerImage;
 }
+
+var createMarkers = function(venues) {
+  // Loop through all venues and make a marker for each one
+  for (var i = 0; i < venues.length; i++) {
+    var venue = venues[i];
+    // push each venue into the bars array
+    viewModel.barList.push(venue);
+    // set up latlng in a format compatible with google Marker
+    var latlng = {lat: venue.location.lat, lng: venue.location.lng}
+    // Create a marker for each place
+    var marker = new google.maps.Marker({
+      map: map,
+      icon: defaultIcon,
+      title: venue.name,
+      position: latlng,
+      id: venue.id,
+      animation: google.maps.Animation.DROP
+    });
+
+    // Create a single infowindow to show data about the place selected.
+    // Only one will be open at a time
+    var venueInfoWindow = new google.maps.InfoWindow();
+    // If a marker is clicked, use the venue id to request specific data from
+    // FourSquare API
+    marker.addListener('click', function() {
+      if (venueInfoWindow.marker == this) {
+        console.log("This infowindow is already on this marker!");
+      } else {
+        getVenueDetails(this, venueInfoWindow);
+      }
+    });
+
+    // When clicked, the marker will open an info window
+    marker.addListener('click', function() {
+      populateInfoWindow(this, infoWindow);
+    });
+    // Change colours of the marker when hovering over and out
+    marker.addListener('mouseover', function() {
+      this.setIcon(highlightedIcon);
+    });
+    marker.addListener('mouseout', function() {
+      this.setIcon(defaultIcon);
+    });  
+  }
+};
 
 // A function to populate the infowwindow when the marker is clicked.
 // Only one infowindow is allowed at a time at the selected markers position
@@ -114,7 +160,7 @@ function getFourSquareData(address) {
         window.alert('No bars were found in this area.');
       } else {
         // Create markers for each of the venues
-        createMarkersForPlaces(venueList);
+        createMarkers(venueList);
       }
     },
     error: function(err) {
@@ -122,42 +168,6 @@ function getFourSquareData(address) {
       window.alert('An error occurred when finding bars in your specified location. Please check spelling');
     }
   });
-}
-
-// This function creates markers for each place found via the zoom search box
-// and hence via FourSquare API GET request
-function createMarkersForPlaces(venues) {
-  // Loop through all venues and make a marker for each one
-  for (var i = 0; i < venues.length; i++) {
-    var venue = venues[i];
-    // push each venue into the bars array
-    bars.push(venue);
-    // set up latlng in a format compatible with google Marker
-    var latlng = {lat: venue.location.lat, lng: venue.location.lng}
-    // Create a marker for each place
-    var marker = new google.maps.Marker({
-      map: map,
-      icon: defaultIcon,
-      title: venue.name,
-      position: latlng,
-      id: venue.id,
-      animation: google.maps.Animation.DROP
-    });
-
-    // Create a single infowindow to show data about the place selected.
-    // Only one will be open at a time
-    var venueInfoWindow = new google.maps.InfoWindow();
-    // If a marker is clicked, use the venue id to request specific data from
-    // FourSquare API
-    marker.addListener('click', function() {
-      if (venueInfoWindow.marker == this) {
-        console.log("This infowindow is already on this marker!");
-      } else {
-        getVenueDetails(this, venueInfoWindow);
-      }
-    });  
-
-  }
 }
 
 // This function is called when a marker is clicked and more info is wanted 

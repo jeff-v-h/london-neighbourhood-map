@@ -11,6 +11,12 @@ var Bar = function(data) {
 // The View Model to deal with everything that happens on the page
 var ViewModel = function() {
   var self = this;
+  self.barList = ko.observableArray([]);
+
+  // Push initial default bars into the barList
+  bars.forEach(function(barItem) {
+    self.barList.push( new Bar(barItem) );
+  });
 
   // The following group uses the bars array to create an array of markers on initialize.
   for (var i=0; i<bars.length; i++) {
@@ -23,20 +29,8 @@ var ViewModel = function() {
       position: position,
       title: name,
       animation: google.maps.Animation.DROP,
-      icon: self.defaultIcon,
+      icon: defaultIcon,
       id: i
-    });
-
-    // When clicked, the marker will open an info window
-    marker.addListener('click', function() {
-      populateInfoWindow(this, infoWindow);
-    });
-    // Change colours of the marker when hovering over and out
-    marker.addListener('mouseover', function() {
-      this.setIcon(self.highlightedIcon);
-    });
-    marker.addListener('mouseout', function() {
-      this.setIcon(self.defaultIcon);
     });
   }
 
@@ -56,12 +50,6 @@ var ViewModel = function() {
       getFourSquareData(address);
     }
   })
-
-  // Initialise an observable array with all the selected bars
-  self.barList = ko.observableArray([]);
-  bars.forEach(function(barItem) {
-    self.barList.push( new Bar(barItem) );
-  });
 
   // When this function is called, the barList is cleaned and replaced with the current 
   // list of bars in the bars array
