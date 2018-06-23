@@ -54,11 +54,12 @@ function makeMarkerIcon(markerColor) {
 
 // This function creates markers for each bar inside the viewmodel barlist array
 var createMarkers = function(venues) {
+  bars = [];
   // Loop through all venues and make a marker for each one
   for (var i = 0; i < venues.length; i++) {
     var venue = venues[i];
     // push each venue into the bars array
-    // viewModel.barList.push(venue);
+    bars.push(venue);
     // set up latlng in a format compatible with google Marker
     var latlng = {lat: venue.location.lat, lng: venue.location.lng}
     // Create a marker for each place
@@ -144,7 +145,7 @@ function getFourSquareData(address) {
         // Create markers for each of the venues
         createMarkers(venueList);
       }
-    },
+    }.bind(viewModel),
     error: function(err) {
       console.log('error:' + err);
       window.alert('An error occurred when finding bars in your specified location. Please check spelling');

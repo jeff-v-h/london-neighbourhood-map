@@ -18,13 +18,10 @@ var ViewModel = function() {
     self.barList.push( new Bar(barItem) );
   });
 
-
+  // Create markers for each of the default bars
   createMarkers(bars);
 
-  // When the zoom button is clicked, call the zoomToArea function which
-  // zooms into the area specified and call the FourSquaredata function to 
-  // get places data for that location
-  document.getElementById('zoom-btn').addEventListener('click', function() {
+  self.searchLocation = function() {
     // Get the address or place that the user entered.
     var address = document.getElementById('zoom-text').value;
     // Make sure the address isn't blank
@@ -35,18 +32,19 @@ var ViewModel = function() {
       // and to obtain data from FourSquare to make markers and infowindows
       zoomToArea(address);
       getFourSquareData(address);
+      self.updateList();
     }
-  });
+  };
 
   // Function to remove all bars from bars Aray
   self.cleanList = function() {
-    self.barList([]);
-    console.log(self.barList());
+    
   }
 
   // When this function is called, the barList is cleaned and replaced with the current 
   // list of bars in the bars array
   self.updateList = function() {
+    self.barList([]);
     bars.forEach(function(barItem) {
       self.barList.push( new Bar(barItem) );
     });
